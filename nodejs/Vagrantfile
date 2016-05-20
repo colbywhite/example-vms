@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = 'ubuntu/trusty64'
+  config.vm.hostname = 'nodejs'
+  # config.vm.synced_folder '../data', '/vagrant_data'
+  config.vm.network 'private_network', ip: '192.168.33.10'
+  # config.vm.network 'forwarded_port', guest: 80, host: 8080
+
+  config.berkshelf.enabled = true
+  config.vm.provision :chef_solo do |chef|
+    # newer versions of chef are in legacy mode by default, thus breaking vagrant. so rollback the version
+    # See https://github.com/chef/chef/issues/4948
+    chef.version = '12.10.40'
+    # the fix will be in later versions of vagrant, but it is not yet released
+    # See https://github.com/mitchellh/vagrant/pull/7327
+    #chef.legacy_mode = false
+
+    chef.add_recipe 'nodejs'
+    chef.json = {
+        nodejs: {
+            version: '4.2.1',
+            install_method: 'binary',
+            binary: {
+                # get the checksum for node-vYOUR_VERSION-linux-x64.tar.gz
+                # from https://nodejs.org/dist/vYOUR_VERSION/SHASUMS256.txt
+                checksum: 'e766e387934e17daaad92d0460ed76f756655da62b627a5c9cc07faea4a0b824'
+            }
+        }
+    }
+  end
+end

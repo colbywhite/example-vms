@@ -5,3 +5,6 @@ To use the examples, install the following:
 - virtualbox
 - chefdk
 - `vagrant plugin install vagrant-berkshelf`
+
+# nodejs VM
+This VM will install the specified version of nodejs via binary.
