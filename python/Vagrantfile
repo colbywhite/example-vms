@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = 'ubuntu/trusty64'
+  config.vm.hostname = 'python'
+  # config.vm.synced_folder '../data', '/vagrant_data'
+  config.vm.network 'private_network', ip: '192.168.33.15'
+  # config.vm.network 'forwarded_port', guest: 80, host: 8080
+
+  config.berkshelf.enabled = true
+  config.vm.provision :chef_solo do |chef|
+    # newer versions of chef are in legacy mode by default, thus breaking vagrant. so rollback the version
+    # See https://github.com/chef/chef/issues/4948
+    chef.version = '12.10.40'
+    # the fix will be in later versions of vagrant, but it is not yet released
+    # See https://github.com/mitchellh/vagrant/pull/7327
+    #chef.legacy_mode = false
+
+    chef.add_recipe 'python'
+    chef.json = {
+        'python' => {
+            version: '2.7.11',
+            # inspect Python-2.7.11.tgz for the sha256
+            # https://www.python.org/downloads/release/python-2711/
+            checksum: '82929b96fd6afc8da838b149107078c02fa1744b7e60999a8babbc0d3fa86fc6'
+        }
+    }
+  end
+end
